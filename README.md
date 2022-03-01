@@ -1,11 +1,11 @@
-##About
+## About
 
 Album art collage generator.
 I was bored so I made this to get a wallpaper for my phone.
 
 This accepts Spotify playlists and converts them into collages for any given resolution as shown below.
 
-##Examples
+## Examples
 
 ---
 
@@ -24,7 +24,7 @@ Square:
 
 ---
 
-##Usage
+## Usage
 **Please run the following commands from the project directory (the cloned directory).**
 1. Clone the repo via `git clone https://github.com/RuthlessJailer/AlbumArt`.
 
@@ -37,17 +37,17 @@ Square:
    Follow its instructions to generate as many collages as you want!
 
 
-##Explanation
+## Explanation
 This project has 3 "parts".
 Initially in Java, it spread to a mess of multiple languages after several attempts.
-#####Python
+##### Python
 - `parse.py` Converts `content/playlist.txt` (list Spotify links) -> `content/links.txt` (list of links to album art)
 
 > This abuses Spotify's OEmbed service, which provides the URL to their album cover CDN.
 An example request would return JSON containing `thumbnail_url`.
 > 
 > `https://open.spotify.com/oembed?url=spotify:track:6c5wQFfJApRMooKE7UQnlH`
-returns:
+> returns:
 ```json
 {
   "html": "<iframe style=\"border-radius: 12px\" width=\"100%\" height=\"80\" title=\"Spotify Embed: durag activity (with Travis Scott)\" frameborder=\"0\" allowfullscreen allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" src=\"https://open.spotify.com/embed/track/6c5wQFfJApRMooKE7UQnlH?utm_source=oembed\"></iframe>",
@@ -72,7 +72,7 @@ r = requests.get(url, headers=user_agent, allow_redirects=True, stream=True)
     with open(filename, 'wb') as f:
         shutil.copyfileobj(r.raw, f)
 ```
-#####Java
+##### Java
 - `AlbumArt.java` Combines the downloaded pictures into a collage.
 
 > It basically loops through the enclosing square, only placing a photo if it's within the frame to maximize the number of pictures that can fit inside.
