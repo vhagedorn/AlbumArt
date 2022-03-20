@@ -11,12 +11,17 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author vadim
  */
 public class AlbumArt {
 
+
+	public static final int NO_RANDOM = 0;
+	public static final int X_AXIS    = 1;
+	public static final int Y_AXIS    = 2;
 
 	static final String[] rev = {
 			"content/revisions//java 1/pics",
@@ -76,6 +81,22 @@ public class AlbumArt {
 		ImageIO.write(art, "png", out);
 	}
 
+	//eg:
+	//15->15
+	//	00001111->00001111
+	//39->63
+	//	00100111->00111111
+	public static int calcScaleMask(int scale) {
+		for (int i = 32; i >= 0; i--) {
+			if ((scale & (1 << (i - 1))) >= 1) {
+				int mask = 0;
+				for (int j = 0; j < i; j++) mask |= 1 << j;
+				return mask;
+			}
+		}
+		return 0;
+	}
+
 	public static int autoscale(double w, double h, double d, double theta, int expect) {
 		int result;
 		int s = 1;
@@ -108,11 +129,11 @@ public class AlbumArt {
 			s++;
 		}
 //		System.out.println("s: " + s + ", expect:" + expect + ", result:" + result);
-		return s;
+		return ++s;
 	}
 
-	public static String collage(double width, double height, BufferedImage[] images, int scale, boolean randomOffsets) throws IOException {
-		BufferedImage generated = rotRev4(width, height, images, scale, randomOffsets);
+	public static String collage(double width, double height, BufferedImage[] images, int scale, @MagicConst int random) throws IOException {
+		BufferedImage generated = rotRev4(width, height, images, scale, random, new ImageMut(Color.BLACK), System.nanoTime());
 
 		File out = new File("content/render/scale-" + (scale == -1 ? "auto" : scale) + "-[" + images.hashCode() + "].png");
 		if (!out.getParentFile().exists()) out.getParentFile().mkdirs();
@@ -122,7 +143,9 @@ public class AlbumArt {
 		return out.getAbsolutePath();
 	}
 
-	public static BufferedImage rotRev4(double w, double h, BufferedImage[] images, int scale, boolean rand) throws IOException {
+	public static BufferedImage rotRev4(double w, double h, BufferedImage[] images, int scale, @MagicConst int random, ImageMutation imut, long seed) throws IOException {
+		Dimension resolution = new Dimension((int) w, (int) h);
+
 		//find diagonal upon which the canvas aligned
 		double d        = Math.max(w, h) * Math.sqrt(2);//diagonal of encapsulating square
 		int    diagonal = (int) Math.round(d);
@@ -131,23 +154,39 @@ public class AlbumArt {
 		double theta = Math.max(Math.asin(h / d), Math.asin(w / d));
 
 		if (scale == -1) {
-			System.out.println("SCALE AUTO");
 			scale = autoscale(w, h, d, theta, images.length);
 		} else {
 			scale = diagonal / scale;
 		}
 
-		BufferedImage   art = new BufferedImage((int) w, (int) h, BufferedImage.TYPE_INT_RGB);
+		BufferedImage   art = new BufferedImage(resolution.width, resolution.height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D      g2d = ((Graphics2D) art.getGraphics());
 		AffineTransform transform;
+
+		g2d.translate(imut.translationDelta().x, imut.translationDelta().y);
+		g2d.setColor(imut.background());
+		g2d.fillRect(0, 0, resolution.width, resolution.height);
 
 		g2d.setStroke(new BasicStroke(3f));
 
 		int   i    = 0;
 		float last = 0;
-		for (double x = 0; x < d / scale; x++) {//iterate over (unscaled) X from a little outside {-(d/scale)/2} until the diagonal {d/scale}
-			int r = rand ? (int) Math.round(Math.random() * scale) : 0;
-			for (double y = last -= 1; y < (d / scale) + last; y++) {//iterate over (unscaled) Y, staring further outside each time in order to fill the rect
+		Random rng = new Random(seed);
+		for (double x = 0; x < d / scale; x++) {//iterate over (unscaled) X until the diagonal {d/scale}
+			int r = (int) (random == Y_AXIS ? Math.round(rng.nextFloat() * scale) : 0);//y-random
+//			System.out.println(last + "," + (d/scale));
+			for (double y = last -= 1; y < (d / scale) + last; y++) {//iterate over (unscaled) Y, staring further outside each time in order to
+//				System.out.println(y);
+				// fill the rect
+				r = (int) (random == X_AXIS ? Math.round(new Random(Math.round(y) ^ seed).nextFloat() * 10000f) : r);//x-random
+				r &= calcScaleMask(scale);
+				r %= scale;
+				//seed the random for the current Y-value (since the loop goes the other way), and use that to get X-axis randomization
+				//!not necessary if you want Y-axis randomization!
+				//basically the random didn't have enough play in the higher-order bits, so:
+				//	multiply (shift) it over to access the lower-order (decimal) bits, then
+				//	mask the part that we need (the place-values included in the scale, hence `calcScaleMask`)
+
 				transform = g2d.getTransform();
 
 				int xc = (int) Math.round(x * scale),
@@ -171,14 +210,24 @@ public class AlbumArt {
 					g2d.rotate(theta);
 
 					//draw image on rotated coordinate
-					if (i < images.length) g2d.drawImage(images[i++], xc, yc + r, scale, scale, null);
+					if (i < images.length) g2d.drawImage(images[i++], xc - (random == X_AXIS ? r : 0), yc - (random == Y_AXIS ? r : 0), scale, scale, null);
 				}
 
 				g2d.setTransform(transform);
 			}
 		}
 
-		return art;
+		//post processing (zoom)
+		Dimension zoomed  = new Dimension(-1, (int) h + imut.zoomAmount());
+		ImageMutation.aspectRatio(resolution, zoomed);
+
+		BufferedImage post = new BufferedImage(resolution.width, resolution.height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D processing = post.createGraphics();
+		processing.setColor(imut.background());
+		processing.fillRect(0, 0, resolution.width, resolution.height);
+		processing.drawImage(art, 0, 0, zoomed.width, zoomed.height, null);
+
+		return post;
 	}
 
 	public static BufferedImage rotRev3(BufferedImage[] images, int scale) throws IOException {
@@ -474,7 +523,7 @@ public class AlbumArt {
 		String         line;
 		int            mode   = -1;
 		double         w      = -1, h = -1;//1920,1080;1080,2340
-		boolean        random = false;
+		int            random = NO_RANDOM;
 		while (!(line = reader.readLine()).equals("exit")) {
 			System.out.println("\nType 'exit' to quit.");
 			line = line.strip().toUpperCase();
@@ -484,8 +533,9 @@ public class AlbumArt {
 				in = Integer.parseInt(line);
 			} catch (NumberFormatException x) {
 				if (mode == 2) {
-					if (line.equals("Y")) in = 1;
-					if (line.equals("N")) in = 0;
+					in = NO_RANDOM;
+					if (line.equals("X")) in = X_AXIS;
+					if (line.equals("Y")) in = Y_AXIS;
 				} else if (mode >= 0) {
 					System.out.println("Please enter a number.");
 					continue;
@@ -509,11 +559,11 @@ public class AlbumArt {
 				}
 				case 1 -> {
 					h = in;
-					System.out.print("Use random offsets? (EXPERIMENTAL: you'll have to crop the image) Y/N ");
+					System.out.print("Use random offsets? (EXPERIMENTAL: you'll have to crop the image) X/Y/no ");
 					mode++;
 				}
 				case 2 -> {
-					random = in == 1;
+					random = in;
 					System.out.println("Entering render mode. Repeat the following step until you are satisfied with the result.");
 					System.out.print("Enter a scale (-1 for AUTO): ");
 					mode++;
@@ -532,8 +582,8 @@ public class AlbumArt {
 	}
 
 	public static void main(String[] args) throws Exception {
-		tryScale();
+		if (args.length > 0 && args[0].equals("--nogui")) tryScale();
+		else new Gui();
 	}
 
 }
-
