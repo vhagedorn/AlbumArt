@@ -1,4 +1,4 @@
-package me.vadim.test;
+package me.vadim.test.collage;
 
 import java.awt.*;
 
