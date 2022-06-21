@@ -1,15 +1,8 @@
 package me.vadim.test.collage;
 
-import me.vadim.test.Comparer;
 import me.vadim.test.MagicConst;
-import me.vadim.test.download.Downloader;
-import me.vadim.test.download.wrapper.Artist;
-import me.vadim.test.download.wrapper.Playlist;
-import me.vadim.test.download.wrapper.Release;
-import me.vadim.test.download.wrapper.impl.SpotifyPlaylist;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -17,11 +10,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Random;
 
 /**
  * @author vadim
@@ -199,7 +191,6 @@ public class AlbumArt {
 
 	static boolean inBounds(double x, double y, double w, double h) { return !(x > w || y > h || x < 0 || y < 0); }
 
-
 	//primitive command line application
 	public static void tryScale() throws IOException {
 		//cache images to create multiple renders quickly
@@ -275,165 +266,7 @@ public class AlbumArt {
 		}
 	}
 
-	public static class display {
-		final JDialog dialog = new JDialog();
-		final JButton  a      = new JButton();
-		final JButton  b     = new JButton();
-		final Consumer<Release> click;
-		display(Consumer<Release> click){
-			this.click = click;
-			SwingUtilities.invokeLater(() -> {
-				dialog.setLayout(new BorderLayout());
-				a.setSize(600, 600);
-				b.setSize(600, 600);
-
-				dialog.add(a, BorderLayout.WEST);
-				dialog.add(b, BorderLayout.EAST);
-				dialog.pack();
-				dialog.setVisible(true);
-			});
-		}
-
-		public void update(Release A, Release B){
-			SwingUtilities.invokeLater(() -> {
-				a.setIcon(new ImageIcon(A.icon()));
-				b.setIcon(new ImageIcon(B.icon()));
-				dialog.pack();
-				dialog.repaint();
-			});
-		}
-	}
-
-	public static BufferedImage tilt(BufferedImage image, double angle) {
-		angle = Math.toRadians(angle);
-		double sin = Math.abs(Math.sin(angle)), cos = Math.abs(Math.cos(angle));
-		int w = image.getWidth(), h = image.getHeight();
-		int neww = (int)Math.floor(w*cos+h*sin), newh = (int)Math.floor(h*cos+w*sin);
-		BufferedImage result = new BufferedImage(neww, newh, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = result.createGraphics();
-		g.translate((neww-w)/2, (newh-h)/2);
-		g.rotate(angle, w/2f, h/2f);
-		g.drawRenderedImage(image, null);
-		g.dispose();
-		return result;
-	}
-
 	public static void main(String[] args) throws Exception {
-		if(true){
-			File f = new File("D:\\Backup\\iOS\\5.06.22");
-			File o = new File("D:\\Backup\\iOS\\aaart");
-			for (File file : f.listFiles()) {
-				System.out.print('\n' + file.getName());
-				if(file.getAbsolutePath().toLowerCase(Locale.ROOT).endsWith(".png")){
-					System.out.print(" IMAGE");
-					BufferedImage image = ImageIO.read(file);
-					if(image.getWidth() == 300 && image.getHeight() == 300){
-						System.out.print(" 300x300");
-						Files.copy(file.toPath(), new File(o, file.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
-						if(!file.delete()) System.out.print(" -- FAILED TO DELETE !!!");
-					}
-				}
-			}
-
-			return;
-		}
-
-		System.out.println("Album Art Collage Generator");
-		System.out.println("Made by Vadim Hagedorn");
-
-//		Playlist playlist = Downloader.parseSpotifyPlaylist("https://open.spotify.com/playlist/4NlDFNePTssx9NPPAAOyI0?si=b07e9c41492c4813",
-//															Files.readString(new File("content/playlist.txt").toPath()).split("\n"));
-//		File a = new File("download/images/artists.json");
-//		File p = new File("download/images/playlist.json");
-//		Downloader.writePlaylist(playlist, new File("download/images"));
-//		System.out.println(readplaylist());
-
-//		if(true) return;
-
-		Playlist plist = Downloader.readPlaylist(new File("download/images"));
-
-//		Map<File, BufferedImage> cached = Gui.readImages(new File("download/images"), null);
-
-		display cfull = new display((a) -> {});
-		cfull.dialog.setLocationRelativeTo(null);
-
-		if (false) {
-			File d = new File("download/images");
-			File f[][] = {
-					{
-							new File(d, "ALBUM_MF DOOM_BORN LIKE THIS.png"),
-							new File(d, "ALBUM_MF DOOM_Born Like This Bonus Version.png")
-					},
-					{
-							new File(d, "ALBUM_MF DOOM_MM..FOOD.png"),
-							new File(d, "ALBUM_MF DOOM_MM...FOOD.png")
-					},
-					{
-							new File(d, "ALBUM_MF DOOM_MM..FOOD.png"),
-							new File(d, "ALBUM_MF DOOM_BORN LIKE THIS.png")
-					},
-					{
-							new File(d, "ALBUM_MF DOOM_MM..FOOD.png"),
-							new File(d, "ALBUM_MF DOOM_MM..FOOD.png")
-					},
-
-					};
-
-			BufferedImage[][] i = new BufferedImage[f.length][2];
-			for (int x = 0; x < f.length; x++)
-				for (int y = 0; y < f[x].length; y++)
-					 i[x][y] = ImageIO.read(f[x][y]);
-
-			for (int j = 0; j < i.length; j++) {
-				BufferedImage imgA = i[j][0], imgB = i[j][1];
-
-				double p = Comparer.manhattan(imgA, imgB);
-				System.out.printf("%.2f%% match%n", p*100);
-
-//				cfull.update(imgA, imgB);
-
-				JOptionPane.showMessageDialog(null, "result shown in console");
-			}
-
-			return;
-		}
-
-		new Thread(() -> {
-			//performance go yeet
-			Set<Release> dups = new HashSet<>();//only imgA is stored here
-			for (Artist artist : ((SpotifyPlaylist) plist).artists.values()) {
-				Release[] releases = plist.releasesByArtist(artist);
-				for (Release releaseA : releases) {
-					for (Release releaseB : releases) {
-						if (releaseA == releaseB) continue;
-						if(dups.contains(releaseA)) continue;
-
-						double  percent = Comparer.manhattan(releaseA.icon(), releaseB.icon());
-						boolean match   = false;
-
-//						cfull.update(releaseA.icon(), releaseB.icon());
-						cfull.update(releaseA, releaseB);
-
-						if (percent > .85 && percent < 1) {
-							int option = JOptionPane.showConfirmDialog(null, String.format("%.2f%% Match between 2 images. Are they the same?", percent * 100));
-							if (option == JOptionPane.YES_OPTION) {
-								match = true;
-							}
-						}
-						if (match || percent >= 1) {
-							System.out.println("match " + artist.name() + "'s \"" + releaseA.name() + "\" and \"" + releaseB.name() + '"');
-							dups.add(releaseB);
-						}
-					}
-				}
-			}
-
-			System.exit(0);
-		}).start();
-
-//		new DLG();
-		if (true) return;
-
 		if (args.length > 0 && args[0].equals("nogui")) {
 			System.out.println("	Starting in headless mode.");
 			tryScale();
