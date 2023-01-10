@@ -7,22 +7,33 @@ This accepts Spotify playlists and converts them into collages for any given res
 
 ## Examples
 
+With the UI, it is very easy to edit, preview, and crop the collage before saving it to a file.
+
+Have a look at a few screenshots.
+
+### UI
+
+* Main window
+
+![Main UI](https://imgur.com/DAHOILg.png)
+
+* Scaling (AUTO will fit the maximum amount of images inside the given output resolution)
+
+![Scaling](https://imgur.com/k9FjPDZ.gif)
+
+* Easy pan & zoom preview
+
+![Pan and Save](https://imgur.com/c4bNRPh.gif)
+
+* Results
+
+![Result (downscaled)](https://imgur.com/R3LOqpd.png)
+
+
 <details>
-  <summary>Images</summary>
-
-Desktop:
-![1920x1080](https://imgur.com/H0xwMM6.png)
-
----
-
-Mobile:
-![iPhone](https://imgur.com/Vbbk7r1.png)
-
----
-
-Square:
-![1:1](https://imgur.com/64CIdxq.png)
-
+  <summary>Generated Image (full resolution)</summary>
+  
+![iPhone](https://imgur.com/D0MWgXb.png)
 </details>
 
 ## Usage
