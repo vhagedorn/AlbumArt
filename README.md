@@ -7,7 +7,8 @@ This accepts Spotify playlists and converts them into collages for any given res
 
 ## Examples
 
----
+<details>
+  <summary>Images</summary>
 
 Desktop:
 ![1920x1080](https://imgur.com/H0xwMM6.png)
@@ -22,7 +23,7 @@ Mobile:
 Square:
 ![1:1](https://imgur.com/64CIdxq.png)
 
----
+</details>
 
 ## Usage
 **Please run the following commands from the project directory (the cloned directory).**
@@ -40,7 +41,7 @@ Square:
 ## Explanation
 This project has 3 "parts".
 Initially in Java, it spread to a mess of multiple languages after several attempts.
-##### Python
+### Python
 - `parse.py` Converts `content/playlist.txt` (list Spotify links) -> `content/links.txt` (list of links to album art)
 
 > This abuses Spotify's OEmbed service, which provides the URL to their album cover CDN.
@@ -58,7 +59,7 @@ An example request would return JSON containing `thumbnail_url`.
   "provider_url": "https://spotify.com",
   "type": "rich",
   "title": "durag activity (with Travis Scott)",
-  "thumbnail_url": "https://i.scdn.co/image/ab67616d00001e021bfa23b13d0504fb90c37b39",//bingo!
+  "thumbnail_url": "https://i.scdn.co/image/ab67616d00001e021bfa23b13d0504fb90c37b39", # bingo!
   "thumbnail_width": 300,
   "thumbnail_height": 300
 }
@@ -72,7 +73,7 @@ r = requests.get(url, headers=user_agent, allow_redirects=True, stream=True)
     with open(filename, 'wb') as f:
         shutil.copyfileobj(r.raw, f)
 ```
-##### Java
+### Java
 - `AlbumArt.java` Combines the downloaded pictures into a collage.
 
 > It basically loops through the enclosing square, only placing a photo if it's within the frame to maximize the number of pictures that can fit inside.
@@ -106,7 +107,6 @@ r = requests.get(url, headers=user_agent, allow_redirects=True, stream=True)
 				if (inB) {
 					g2d.setColor(Color.WHITE);
 					//rotate around origin
-					g2d.rotate(theta);
 
 					//draw image on rotated coordinate
 					if (i < images.length) g2d.drawImage(images[i++], xc, yc + r, scale, scale, null);
@@ -118,4 +118,6 @@ r = requests.get(url, headers=user_agent, allow_redirects=True, stream=True)
 ```
 
 ---
+
+## End
 Hopefully someone found this interesting!
