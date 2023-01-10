@@ -20,8 +20,10 @@ lines = file.readlines()
 
 # prepare for download
 
-if not os.path.exists('content/revisions/py 3/pics'):
-    os.mkdir('content/revisions/py 3/pics')
+DL_DIR = r'content/revisions/py 4/pics/'
+
+if not os.path.exists(DL_DIR):
+    os.mkdir(DL_DIR)
 
 user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'}
 
@@ -30,7 +32,8 @@ for url in lines:
     url = url.replace('\n', '')
     print(url)
     
-    filename = 'content/revisions/py 3/pics' + url.split("/image/")[1] + '.jfif'
+    filename = DL_DIR + url.split("/image/")[1] + '.jfif'
+    print(filename)
     if os.path.exists(filename):
         continue
 

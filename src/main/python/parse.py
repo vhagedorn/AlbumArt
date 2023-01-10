@@ -49,13 +49,13 @@ for line in lines:
     
     print(url)
 
-print("\n\n\n\n\n\nPARSED URLS:")
+print(f"\nParsed {len(urls)} image links.")
 
 # save
 
 lines = []
 for url in urls:
-    print(url)
+    #print(url)
     lines.append(url + '\n')
     
 with open('content/links.txt', 'a') as file:
