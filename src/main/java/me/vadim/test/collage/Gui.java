@@ -40,7 +40,7 @@ public class Gui {
 	JLabel                preview            = new JLabel();
 	PreviewListener       previewListener    = new PreviewListener(this);
 	//todo: fix starting dir
-	AtomicReference<File> folder             = new AtomicReference<>(new File(new File("content/revisions/py 3/pics").getAbsolutePath()));//in
+	AtomicReference<File> folder             = new AtomicReference<>(new File("content/"));//in
 	AtomicReference<File> file               = new AtomicReference<>(new File("content/s.png"));//out
 	AtomicInteger         random             = new AtomicInteger(NO_RANDOM);
 	String[]              imgCtFmt           = {"$", "$ images"};
@@ -573,14 +573,14 @@ public class Gui {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}).start();
+			pictureCount.setText(fmt(imgCtFmt, cache.length));
+			popup.setVisible(false);
+			if (cache.length > 0)
+				JOptionPane.showMessageDialog(frame, "Success! Ready to generate collages.", "Success!", JOptionPane.INFORMATION_MESSAGE);
+			else
+				JOptionPane.showMessageDialog(frame, "Failure! Make sure that you select a folder with pictures in it.", "Failure!", JOptionPane.ERROR_MESSAGE);
 
-		pictureCount.setText(fmt(imgCtFmt, cache.length));
-		popup.setVisible(false);
-		if (cache.length > 0)
-			JOptionPane.showMessageDialog(frame, "Success! Ready to generate collages.", "Success!", JOptionPane.INFORMATION_MESSAGE);
-		else
-			JOptionPane.showMessageDialog(frame, "Failure! Make sure that you select a folder with pictures in it.", "Failure!", JOptionPane.ERROR_MESSAGE);
+		}).start();
 	}
 
 	static Map<File, BufferedImage> readImages(File folder, JProgressBar update) {

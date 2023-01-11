@@ -49,7 +49,7 @@ for line in lines:
     
     print(url)
 
-print(f"\nParsed {len(urls)} image links.")
+print(f"\nParsed {len(urls)} image links from {len(lines)} tracks.")
 
 # save
 
