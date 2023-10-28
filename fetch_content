@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "[i] Parsing content/playlist.txt ..."
+if python3 src/main/python/parse.py; then
+		echo "[i] Downloading album art images ..."
+		python3 src/main/python/download.py
+else
+		echo "[!] Failure! Please paste songs links into content/playlist.txt!"
+fi

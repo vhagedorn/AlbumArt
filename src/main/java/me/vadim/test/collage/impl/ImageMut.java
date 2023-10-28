@@ -1,4 +1,6 @@
-package me.vadim.test.collage;
+package me.vadim.test.collage.impl;
+
+import me.vadim.test.collage.ImageMutation;
 
 import java.awt.*;
 

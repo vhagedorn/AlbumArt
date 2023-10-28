@@ -1,5 +1,7 @@
 package me.vadim.test.collage;
 
+import me.vadim.test.collage.impl.ImageMut;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -26,31 +28,30 @@ import static me.vadim.test.collage.AlbumArt.*;
  */
 public class Gui {
 
-	private final        JFrame        frame;
+	private final JFrame frame;
 	private static final BufferedImage villain = cacheImage("icon3.png");
-	private static final BufferedImage whoops  = cacheImage("ohno.png");
+	private static final BufferedImage whoops = cacheImage("ohno.png");
 
-	static String fmt(String[] fmt, int value)    { return fmt(fmt, String.valueOf(value)); }
+	static String fmt(String[] fmt, int value) { return fmt(fmt, String.valueOf(value)); }
 
 	static String fmt(String[] fmt, String value) { return fmt[1].replace(fmt[0], value); }
 
-	JTextArea[]           texts              = new JTextArea[2];//[w,h]
-	String[]              scaleFmt           = {"$", "Scale ($)"};
-	AtomicInteger         scale              = new AtomicInteger(0);
-	JLabel                preview            = new JLabel();
-	PreviewListener       previewListener    = new PreviewListener(this);
-	//todo: fix starting dir
-	AtomicReference<File> folder             = new AtomicReference<>(new File("content/"));//in
-	AtomicReference<File> file               = new AtomicReference<>(new File("content/s.png"));//out
-	AtomicInteger         random             = new AtomicInteger(NO_RANDOM);
-	String[]              imgCtFmt           = {"$", "$ images"};
-	JLabel                pictureCount       = new JLabel(fmt(imgCtFmt, 0), SwingConstants.CENTER);
-	JSlider[]             translationSliders = new JSlider[3];
+	JTextArea[] texts = new JTextArea[2]; // [w,h]
+	String[] scaleFmt = { "$", "Scale ($)" };
+	AtomicInteger scale = new AtomicInteger(0);
+	JLabel preview = new JLabel();
+	PreviewListener previewListener = new PreviewListener(this);
+	AtomicReference<File> folder = new AtomicReference<>(new File("content/pics"));     // in
+	AtomicReference<File> file = new AtomicReference<>(new File("content/render.png")); // out
+	AtomicInteger random = new AtomicInteger(NO_RANDOM);
+	String[] imgCtFmt = { "$", "$ images" };
+	JLabel pictureCount = new JLabel(fmt(imgCtFmt, 0), SwingConstants.CENTER);
+	JSlider[] translationSliders = new JSlider[3];
 
 	public Gui() {
 		frame = new JFrame("Album Art Collage");
 
-		//pane
+		// pane
 		Container pane = frame.getContentPane();
 
 		pane.setLayout(new GridBagLayout());
@@ -92,13 +93,13 @@ public class Gui {
 						text.addKeyListener(new KeyListener() {
 							@Override
 							public void keyTyped(KeyEvent e) {
-								//enforce numbers only
+								// enforce numbers only
 								if (!Character.isDigit(e.getKeyChar()) && !(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)) e.consume();
 							}
 
 							@Override
 							public void keyPressed(KeyEvent e) {
-								//disable paste
+								// disable paste
 								if ((e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) || e.getKeyCode() == KeyEvent.VK_ENTER) e.consume();
 							}
 
@@ -127,7 +128,7 @@ public class Gui {
 					_misc.anchor = GridBagConstraints.FIRST_LINE_START;
 					_misc.fill   = GridBagConstraints.BOTH;
 
-					//2nd row
+					// 2nd row
 					JPanel       randomAxis = new JPanel(new GridBagLayout());
 					ButtonGroup  group      = new ButtonGroup();
 					final String x_axis     = "X";
@@ -151,7 +152,7 @@ public class Gui {
 
 						_randomAxis.gridx = 0;
 						_randomAxis.gridy = 0;
-						for (int i = X_AXIS; i <= Y_AXIS; i++) {//x & y random axis radio buttons
+						for (int i = X_AXIS; i <= Y_AXIS; i++) { // x & y random axis radio buttons
 							JRadioButton axis = new JRadioButton(i == X_AXIS ? x_axis : y_axis);
 							axis.setMnemonic(i == X_AXIS ? KeyEvent.VK_X : KeyEvent.VK_Y);
 							axis.setActionCommand(i == X_AXIS ? x_axis : y_axis);
@@ -172,7 +173,7 @@ public class Gui {
 					_misc.gridx++;
 					misc.add(pictureCount, _misc);
 
-					//1st row
+					// 1st row
 					JCheckBox randomize = new JCheckBox("Apply random offsets");
 					randomize.addActionListener(new AbstractAction() {
 						@Override
@@ -207,7 +208,7 @@ public class Gui {
 					_misc.gridx++;
 					misc.add(shuffle, _misc);
 
-					JButton go = new JButton("Go!");//re-render
+					JButton go = new JButton("Go!"); // re-render
 					go.addActionListener(new AbstractAction() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
@@ -236,7 +237,7 @@ public class Gui {
 					_input.fill   = GridBagConstraints.BOTH;
 					_input.anchor = GridBagConstraints.FIRST_LINE_START;
 
-					JComponent[] chooser =  createJFileChooser(frame, true, folder, "Choose album art folder", "Choose Folder", JFileChooser.DIRECTORIES_ONLY, this::cacheFolder);
+					JComponent[] chooser = createJFileChooser(frame, true, folder, "Choose album art folder", "Choose Folder", JFileChooser.DIRECTORIES_ONLY, this::cacheFolder);
 
 					_input.gridx = 0;
 					_input.gridy = 0;
@@ -291,7 +292,7 @@ public class Gui {
 				transform.add(new JLabel("Drag and scroll on the preview to change these."));
 
 				ChangeListener c = (x) -> {
-					if(previewListener.dragging) return;
+					if (previewListener.dragging) return;
 
 					JSlider src = ((JSlider) x.getSource());
 					switch (src.getName()) {
@@ -302,8 +303,8 @@ public class Gui {
 					render(false);
 				};
 
-				final String[] str   = {"X", "Y", "Zoom"};
-				int[][]        range = {{-1000, 1000}, {-1000, 1000}, {0, 500}};
+				final String[] str   = { "X", "Y", "Zoom" };
+				int[][]        range = { { -1000, 1000 }, { -1000, 1000 }, { 0, 500 } };
 				for (int i = 0; i < str.length; i++) {
 					JSlider slider = translationSliders[i] = new JSlider(JSlider.HORIZONTAL);
 					slider.setName(str[i]);
@@ -426,7 +427,7 @@ public class Gui {
 	int scale() { return scale.get(); }
 
 	Dimension resolution() {
-		//there are already sanitized
+		// there are already sanitized
 		int w = Integer.parseInt(texts[0].getText());
 		int h = Integer.parseInt(texts[1].getText());
 
@@ -447,7 +448,7 @@ public class Gui {
 	static boolean set = false;
 
 	void postImage(BufferedImage render, ImageMutation mut) {
-		//scale down the actual to a reasonable size
+		// scale down the actual to a reasonable size
 		Dimension desired = scaled();
 		if (!set) {
 			preview.setSize(desired);
@@ -458,22 +459,22 @@ public class Gui {
 
 		BufferedImage size = new BufferedImage(desired.width, desired.height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D    g2d  = size.createGraphics();
-		g2d.setColor(mut.background());//only post-processing here is bg, everything else was done in rotRev4
+		g2d.setColor(mut.background()); // only post-processing here is bg, everything else was done in rotRev4
 		g2d.fillRect(0, 0, desired.width, desired.height);
 		g2d.drawImage(render, 0, 0, desired.width, desired.height, null);
 
-		preview.setIcon(new ImageIcon(size));//full size is saved to file, scaled in preview so that it doesn't run away
+		preview.setIcon(new ImageIcon(size)); // full size is saved to file, scaled in preview so that it doesn't run away
 	}
 
-	public void saveRender(){
+	public void saveRender() {
 		render(true);
 
 		File f = file.get();
-		if(!f.exists()) {
+		if (!f.exists()) {
 			try {
 				f.getParentFile().mkdirs();
 				f.createNewFile();
-			}catch (IOException e){
+			} catch (IOException e) {
 				e.printStackTrace();
 				return;
 			}
@@ -498,13 +499,13 @@ public class Gui {
 	}
 
 	BufferedImage renderedImage;
-	long          seed = System.nanoTime();
+	long seed = System.nanoTime();
 
 	public void render(boolean full) {
-		Dimension resolution = full ? resolution() : scaled();//performance boost for ui
+		Dimension resolution = full ? resolution() : scaled(); // performance boost for ui
 		int       scale      = scale();
 
-		if (cache == null || cache.length == 0) {//first run (no folder selected)
+		if (cache == null || cache.length == 0) { // first run (no folder selected)
 			cacheFolder(folder.get());
 		}
 
@@ -514,7 +515,7 @@ public class Gui {
 			int       x      = previewListener.translateX * (resolution.width / scaled.width);
 			int       y      = previewListener.translateY * (resolution.height / scaled.height);
 
-			Dimension zoomDim = resolution.width < resolution.height ? new Dimension(previewListener.zoomW, -1 ) : new Dimension(-1, previewListener.zoomW);
+			Dimension zoomDim = resolution.width < resolution.height ? new Dimension(previewListener.zoomW, -1) : new Dimension(-1, previewListener.zoomW);
 			ImageMutation.aspectRatio(resolution, zoomDim);
 
 			imut = new ImageMut(resolution.width < resolution.height ? zoomDim.height : zoomDim.width, new Point(x, y), Color.BLACK);
@@ -522,9 +523,9 @@ public class Gui {
 
 		BufferedImage result = whoops;
 		try {
-			//minimum on scale slider is 0 but method takes -1
+			// minimum on scale slider is 0 but method takes -1
 			if (cache.length == 0) throw new IllegalArgumentException("Folder has no images");
-			renderedImage = result = AlbumArt.rotRev4(resolution.getWidth(), resolution.getHeight(), cache, scale == 0 ? -1 : scale, random.get(), imut, seed);
+			renderedImage = result = AlbumArt.rpaste(resolution.getWidth(), resolution.getHeight(), cache, scale == 0 ? -1 : scale, random.get(), imut, seed);
 		} catch (Exception e) {
 			e.printStackTrace();
 			renderedImage = null;
@@ -587,13 +588,13 @@ public class Gui {
 		if (!folder.isDirectory()) return Collections.emptyMap();
 
 		Map<File, BufferedImage> images = new HashMap<>();
-		File[]              files  = folder.listFiles();
+		File[]                   files  = folder.listFiles();
 		if (files != null)
 			for (File file : files) {
 				BufferedImage image = null;
 				try {
 					image = ImageIO.read(file);
-				} catch (IOException ignored) {}
+				} catch (IOException ignored) { }
 
 				if (image != null) images.put(file, image);
 

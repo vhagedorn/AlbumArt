@@ -19,31 +19,33 @@ import java.util.function.Consumer;
 /**
  * @author vadim
  */
-public interface SwingUtil {
+public class SwingUtil {
 
 	@RegEx
-	String ILLEGAL_FILENAME_REGEX = "[^A-Za-z0-9._ -]+";
+	public static final String ILLEGAL_FILENAME_REGEX = "[^A-Za-z0-9._ -]+";
 
 	@RegEx
-	String LEGAL_FILENAME_REGEX = "[A-Za-z0-9._ -]+";
+	public static final String LEGAL_FILENAME_REGEX = "[A-Za-z0-9._ -]+";
 
-	static JComponent[] createJFileChooser(JFrame parent, boolean textArea, AtomicReference<File> fileReference, String chooserTitle, String buttonText, @MagicConst int fileSelectionMode) {
-		return createJFileChooser(parent, textArea, fileReference, chooserTitle, buttonText, fileSelectionMode, (f) -> {});
+	public static JComponent[] createJFileChooser(JFrame parent, boolean textArea, AtomicReference<File> fileReference, String chooserTitle, String buttonText, @MagicConst int fileSelectionMode) {
+		return createJFileChooser(parent, textArea, fileReference, chooserTitle, buttonText, fileSelectionMode, (f) -> { });
 	}
 
-	//returns: [ScrollPane (text area), Button]
-	static JComponent[] createJFileChooser(JFrame parent, boolean textArea, AtomicReference<File> fileReference, String chooserTitle,String buttonText, @MagicConst int fileSelectionMode, Consumer<File> accept) {
+	/**
+	 * @return [ScrollPane (text area), Button]
+	 */
+	public static JComponent[] createJFileChooser(JFrame parent, boolean textArea, AtomicReference<File> fileReference, String chooserTitle, String buttonText, @MagicConst int fileSelectionMode, Consumer<File> accept) {
 		JFileChooser chooser = new JFileChooser(fileReference.get());
 		chooser.setFileSelectionMode(fileSelectionMode);
 		chooser.setDialogTitle(chooserTitle);
 		chooser.setSelectedFile(fileReference.get());
 
-		Optional<JTextArea> jTextArea;
+		Optional<JTextArea>   jTextArea;
 		Optional<JScrollPane> jScrollPane;
-		if(textArea) {
+		if (textArea) {
 			JTextArea   in     = new JTextArea(fileReference.get().getAbsolutePath());
 			JScrollPane scroll = new JScrollPane(in, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			jTextArea = Optional.of(in);
+			jTextArea   = Optional.of(in);
 			jScrollPane = Optional.of(scroll);
 			enableTabbing(in);
 			scroll.setPreferredSize(in.getPreferredSize());
@@ -74,8 +76,8 @@ public interface SwingUtil {
 
 				}
 			});
-		}else {
-			jTextArea = Optional.empty();
+		} else {
+			jTextArea   = Optional.empty();
 			jScrollPane = Optional.empty();
 		}
 
@@ -86,29 +88,29 @@ public interface SwingUtil {
 				chooser.updateUI();
 
 				File f;
-				if(textArea) {
+				if (textArea) {
 					f = new File(jTextArea.orElseThrow().getText());
 					fileReference.set(f);
-				}else {
+				} else {
 					f = fileReference.get();
 				}
 
-				if(f.isDirectory()) chooser.setCurrentDirectory(f);
-				if(f.isFile()) chooser.setSelectedFile(f);
+				if (f.isDirectory()) chooser.setCurrentDirectory(f);
+				if (f.isFile()) chooser.setSelectedFile(f);
 
 				if (chooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
 					f = chooser.getSelectedFile();
 					fileReference.set(f);
-					if(textArea)  jTextArea.orElseThrow().setText(f.getAbsolutePath());
+					if (textArea) jTextArea.orElseThrow().setText(f.getAbsolutePath());
 					accept.accept(f);
 				}
 			}
 		});
 
-		return new JComponent[]{ jScrollPane.orElse(null), button};
+		return new JComponent[] { jScrollPane.orElse(null), button };
 	}
 
-	static BufferedImage cacheImage(String name) {
+	public static BufferedImage cacheImage(String name) {
 		BufferedImage temp;
 
 		try {
@@ -120,7 +122,7 @@ public interface SwingUtil {
 		return temp;
 	}
 
-	static void lookAndFeel() {
+	public static void lookAndFeel() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			for (Window window : JFrame.getWindows()) {
@@ -131,7 +133,7 @@ public interface SwingUtil {
 		}
 	}
 
-	static void lookAndFeel(Window window) {
+	public static void lookAndFeel(Window window) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			SwingUtilities.updateComponentTreeUI(window);
@@ -140,7 +142,7 @@ public interface SwingUtil {
 		}
 	}
 
-	static void enableTabbing(JComponent component) {
+	public static void enableTabbing(JComponent component) {
 		AbstractAction transferFocus = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				((Component) e.getSource()).transferFocus();
@@ -150,7 +152,7 @@ public interface SwingUtil {
 		component.getActionMap().put("transferFocus", transferFocus);
 	}
 
-	static void delay(int delayms, Runnable run) {
+	public static void delay(int delayms, Runnable run) {
 		Timer t = new Timer(delayms, null);
 		ActionListener a = (x) -> {
 			t.stop();

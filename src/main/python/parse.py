@@ -5,15 +5,14 @@ Retrieves the link to Spotify's CDN (i.scdn.co) for each album in the playlist b
 """
 # -------------------------------- watermark --------------------------------
 def _watermark(): # in a function to hide variables
-    _name = "cover art URL parser" 
-    _author ="by Vadim Hagedorn [Sat Feb  5 19:20:24 2022]"
+    _name   = "cover art URL parser" 
+    _author = "by Vadim Hagedorn [Sat Feb  5 19:20:24 2022]"
     _spacer = '-' * len(_author)
     print(_spacer, '\n', _name, '\n', _author, '\n', _spacer)
 _watermark()
 # ---------------------------------------------------------------------------
 
 import requests
-import sys
 
 file = open('content/playlist.txt', 'r')
 lines = file.readlines()
@@ -30,7 +29,7 @@ for line in lines:
     # don't include locally imported files
     if '/local/' in link:
         continue
-    
+
     print("link =", link)
     link = base + link.split('/track/')[1]
 
@@ -44,9 +43,9 @@ for line in lines:
 
     # get the album cover link
     url = json["thumbnail_url"]
-    
+
     urls[url] = 1
-    
+
     print(url)
 
 print(f"\nParsed {len(urls)} image links from {len(lines)} tracks.")
@@ -57,6 +56,6 @@ lines = []
 for url in urls:
     #print(url)
     lines.append(url + '\n')
-    
+
 with open('content/links.txt', 'a') as file:
     file.writelines(lines)
