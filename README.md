@@ -38,28 +38,30 @@ Have a look at a few screenshots.
 
 ## Usage
 **Please run the following commands from the project directory (the cloned directory).**
-1. Clone the repo via `git clone https://github.com/RuthlessJailer/AlbumArt`.
-
+1. Clone the repo via `git clone https://github.com/vhagedorn/AlbumArt`.
 2. Create a text file called `content/playlist.txt` with the Spotify links that you wish to get.
-
-3. Open a terminal/command prompt _at the project directory_ (probably `AlbumArt`).
-4. Find the links to the album covers with `python src/main/python/parse.py`.
-5. Run `python src/main/python/download.py`, which will downloads the album art as `.jfif` files.
-6. Finally, you can generate the collage via `java -jar target/AlbumArt.jar`.
+3. Open a terminal/powershell _at the project directory_ (probably `AlbumArt`).
+	- Option A: (for Linux/MacOS users)
+		1. Make sure your links are in `playlist.txt`!
+   		2. Run `./fetch_content` and grab a cup of coffee.
+	- Option B: (for Windows users)
+ 		1. Find the links to the album covers with `python3 src/main/python/parse.py`.
+		2. Run `python3 src/main/python/download.py`, which will download the album art as `.jfif` files.
+4. Finally, you can generate the collage via `java -jar target/AlbumArt.jar`.
+   
    Follow its instructions to generate as many collages as you want!
 
-
 ## Explanation
-This project has 3 "parts".
 Initially in Java, it spread to a mess of multiple languages after several attempts.
-### Python
-- `parse.py` Converts `content/playlist.txt` (list Spotify links) -> `content/links.txt` (list of links to album art)
 
-> This abuses Spotify's OEmbed service, which provides the URL to their album cover CDN.
+### Python
+#### `parse.py`
+- Converts `content/playlist.txt` (list Spotify links) -> `content/links.txt` (list of links to album art)
+
+This abuses Spotify's OEmbed service, which provides the URL to their album cover CDN.
 An example request would return JSON containing `thumbnail_url`.
-> 
-> `https://open.spotify.com/oembed?url=spotify:track:6c5wQFfJApRMooKE7UQnlH`
-> returns:
+`https://open.spotify.com/oembed?url=spotify:track:6c5wQFfJApRMooKE7UQnlH`
+returns:
 ```json
 {
   "html": "<iframe style=\"border-radius: 12px\" width=\"100%\" height=\"80\" title=\"Spotify Embed: durag activity (with Travis Scott)\" frameborder=\"0\" allowfullscreen allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" src=\"https://open.spotify.com/embed/track/6c5wQFfJApRMooKE7UQnlH?utm_source=oembed\"></iframe>",
@@ -76,22 +78,24 @@ An example request would return JSON containing `thumbnail_url`.
 }
 ```
 
-- `download.py` Downloads the album art into `content/revisions/py 3/pics` as `.jfif` files
+#### `download.py`
+- Downloads the album art into `content/revisions/py 3/pics` as `.jfif` files
 
-> No explanation really needed... Essentially 3 lines of code:
+No explanation really needed... Essentially 3 lines of code:
 ```python
 r = requests.get(url, headers=user_agent, allow_redirects=True, stream=True)
     with open(filename, 'wb') as f:
         shutil.copyfileobj(r.raw, f)
 ```
 ### Java
-- `AlbumArt.java` Combines the downloaded pictures into a collage.
+#### `AlbumArt.java` 
+- Combines the downloaded pictures into a collage.
 
-> It basically loops through the enclosing square, only placing a photo if it's within the frame to maximize the number of pictures that can fit inside.
-> Here's a diagram of what it's doing:
-> ![collage diagram](https://imgur.com/pRiwjHv.png)
-> 
-> And here is the main part of the code.
+It basically loops through the enclosing square, only placing a photo if it's within the frame to maximize the number of pictures that can fit inside.
+Here's a diagram of what it's doing:
+![collage diagram](https://imgur.com/pRiwjHv.png)
+
+And here is the main part of the code.
 ```java
 		int   i    = 0;
 		float last = 0;
@@ -132,3 +136,4 @@ r = requests.get(url, headers=user_agent, allow_redirects=True, stream=True)
 
 ## End
 Hopefully someone found this interesting!
+

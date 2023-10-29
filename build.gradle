@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'me.vadim.test'
-version '1.0.0'
+version '1.0.1'
 
 def name = project.name + '.jar'
 def main = group + '.collage.AlbumArt'
