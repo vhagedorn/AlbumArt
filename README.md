@@ -64,7 +64,7 @@ An example request would return JSON containing `thumbnail_url`.
 returns:
 ```json
 {
-  "html": "<iframe style=\"border-radius: 12px\" width=\"100%\" height=\"80\" title=\"Spotify Embed: Any Colour You Like" frameborder=\"0\" allowfullscreen allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" src=\"https://open.spotify.com/embed/track/6FBPOJLxUZEair6x4kLDhf?utm_source=oembed\"></iframe>",
+  "html": "<iframe style=\"border-radius: 12px\" width=\"100%\" height=\"80\" title=\"Spotify Embed: Any Colour You Like\" frameborder=\"0\" allowfullscreen allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" src=\"https://open.spotify.com/embed/track/6FBPOJLxUZEair6x4kLDhf?utm_source=oembed\"></iframe>",
   "width": 456,
   "height": 80,
   "version": "1.0",
