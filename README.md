@@ -52,7 +52,7 @@ Have a look at a few screenshots.
    Follow its instructions to generate as many collages as you want!
 
 ## Explanation
-Initially in Java, it spread to a mess of multiple languages after several attempts.
+The main logic is in Java, but I didn't rewrite the cover art downloader, so it remains in Python.
 
 ### Python
 #### `parse.py`
@@ -60,19 +60,19 @@ Initially in Java, it spread to a mess of multiple languages after several attem
 
 This abuses Spotify's OEmbed service, which provides the URL to their album cover CDN.
 An example request would return JSON containing `thumbnail_url`.
-`https://open.spotify.com/oembed?url=spotify:track:6c5wQFfJApRMooKE7UQnlH`
+`https://open.spotify.com/oembed?url=spotify:track:6FBPOJLxUZEair6x4kLDhf`
 returns:
 ```json
 {
-  "html": "<iframe style=\"border-radius: 12px\" width=\"100%\" height=\"80\" title=\"Spotify Embed: durag activity (with Travis Scott)\" frameborder=\"0\" allowfullscreen allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" src=\"https://open.spotify.com/embed/track/6c5wQFfJApRMooKE7UQnlH?utm_source=oembed\"></iframe>",
+  "html": "<iframe style=\"border-radius: 12px\" width=\"100%\" height=\"80\" title=\"Spotify Embed: Any Colour You Like" frameborder=\"0\" allowfullscreen allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" src=\"https://open.spotify.com/embed/track/6FBPOJLxUZEair6x4kLDhf?utm_source=oembed\"></iframe>",
   "width": 456,
   "height": 80,
   "version": "1.0",
   "provider_name": "Spotify",
   "provider_url": "https://spotify.com",
   "type": "rich",
-  "title": "durag activity (with Travis Scott)",
-  "thumbnail_url": "https://i.scdn.co/image/ab67616d00001e021bfa23b13d0504fb90c37b39", # bingo!
+  "title": "Any Colour You Like",
+  "thumbnail_url": "https://i.scdn.co/image/ab67616d00001e0217cb878012a0c769091e8045", # bingo!
   "thumbnail_width": 300,
   "thumbnail_height": 300
 }
